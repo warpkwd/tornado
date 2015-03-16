@@ -45,7 +45,7 @@ import traceback
 from tornado.concurrent import TracebackFuture, is_future
 from tornado.log import app_log, gen_log
 from tornado import stack_context
-from tornado.util import Configurable, errno_from_exception, timedelta_to_seconds
+from tornado.util import Configurable, errno_from_exception, timedelta_to_seconds, my_logger
 
 try:
     import signal
@@ -835,6 +835,8 @@ class PollIOLoop(IOLoop):
                 self._events.update(event_pairs)
                 while self._events:
                     fd, events = self._events.popitem()
+                    if not self._handlers.has_key(fd):  # Y.Kawada
+                        break
                     try:
                         fd_obj, handler_func = self._handlers[fd]
                         handler_func(fd_obj, events)

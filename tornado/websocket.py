@@ -37,6 +37,8 @@ from tornado.log import gen_log, app_log
 from tornado import simple_httpclient
 from tornado.tcpclient import TCPClient
 from tornado.util import _websocket_mask
+#
+from tornado.util import my_logger
 
 try:
     from urllib.parse import urlparse # py2
@@ -130,12 +132,14 @@ class WebSocketHandler(tornado.web.RequestHandler):
         self.close_reason = None
         self.stream = None
         self._on_close_called = False
+        my_logger("_init_:%s" % self.request.headers)
 
     @tornado.web.asynchronous
     def get(self, *args, **kwargs):
         self.open_args = args
         self.open_kwargs = kwargs
 
+        my_logger("websocket get:%s" % self.request.headers)
         # Upgrade header should be present and should be equal to WebSocket
         if self.request.headers.get("Upgrade", "").lower() != 'websocket':
             self.set_status(400)
@@ -160,6 +164,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
         else:
             origin = self.request.headers.get("Sec-Websocket-Origin", None)
 
+        my_logger("origin:%s" % origin)
 
         # If there was an origin header, check to make sure it matches
         # according to check_origin. When the origin is None, we assume it
@@ -1029,6 +1034,7 @@ def websocket_connect(url, io_loop=None, callback=None, connect_timeout=None,
         # Copy and convert the headers dict/object (see comments in
         # AsyncHTTPClient.fetch)
         request.headers = httputil.HTTPHeaders(request.headers)
+        my_logger("web conn:%s" % request.headers)
     else:
         request = httpclient.HTTPRequest(url, connect_timeout=connect_timeout)
     request = httpclient._RequestProxy(

@@ -35,7 +35,7 @@ import logging.handlers
 import sys
 
 from tornado.escape import _unicode
-from tornado.util import unicode_type, basestring_type
+from tornado.util import unicode_type, basestring_type, my_logger
 
 try:
     import curses
@@ -189,6 +189,8 @@ def enable_pretty_logging(options=None, logger=None):
     if logger is None:
         logger = logging.getLogger()
     logger.setLevel(getattr(logging, options.logging.upper()))
+    if logger.handlers:     # Y.Kawada
+        return
     if options.log_file_prefix:
         channel = logging.handlers.RotatingFileHandler(
             filename=options.log_file_prefix,
@@ -204,6 +206,9 @@ def enable_pretty_logging(options=None, logger=None):
         channel.setFormatter(LogFormatter())
         logger.addHandler(channel)
 
+    my_logger("handler 0")
+    for p in logger.handlers:
+        my_logger("handler:%s" % p)
 
 def define_logging_options(options=None):
     if options is None:

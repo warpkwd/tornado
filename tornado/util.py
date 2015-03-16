@@ -17,6 +17,8 @@ import inspect
 import os
 import sys
 import zlib
+#
+import datetime,pytz
 
 
 try:
@@ -24,6 +26,17 @@ try:
 except NameError:
     xrange = range  # py3
 
+
+LOG_FILENAME = '/var/log/nova/mytornade.log'
+
+def my_logger(msg):         # Y.Kawada
+    """write file directly"""
+    str = "%s: %s\n" % (datetime.datetime.now(pytz.timezone('Asia/Tokyo')), msg)
+    f = open(LOG_FILENAME, 'a')
+    try:
+        f.write(str)
+    finally:
+        f.close()
 
 class ObjectDict(dict):
     """Makes a dictionary behave like an object, with attribute-style access.

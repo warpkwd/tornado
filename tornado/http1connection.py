@@ -30,8 +30,9 @@ from tornado import httputil
 from tornado import iostream
 from tornado.log import gen_log, app_log
 from tornado import stack_context
-from tornado.util import GzipDecompressor
-
+from tornado.util import GzipDecompressor, my_logger
+#
+from inspect import getmembers
 
 class _QuietException(Exception):
     def __init__(self):
@@ -132,6 +133,7 @@ class HTTP1Connection(httputil.HTTPConnection):
         self._expected_content_remaining = None
         # A Future for our outgoing writes, returned by IOStream.write.
         self._pending_write = None
+        self.token = None
 
     def read_response(self, delegate):
         """Read a single HTTP response.
@@ -168,6 +170,10 @@ class HTTP1Connection(httputil.HTTPConnection):
                     self.close()
                     raise gen.Return(False)
             start_line, headers = self._parse_headers(header_data)
+            my_logger("start:%s  header_data:%s\n" % (start_line, headers))
+            _tok = re.search(r'GET\s/\?token=(.*)\sHTTP', start_line)    # Y.Kawada
+            if _tok:
+                self.token = _tok.group(1)
             if self.is_client:
                 start_line = httputil.parse_response_start_line(start_line)
                 self._response_start_line = start_line
