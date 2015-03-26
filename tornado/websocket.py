@@ -169,7 +169,9 @@ class WebSocketHandler(tornado.web.RequestHandler):
         # If there was an origin header, check to make sure it matches
         # according to check_origin. When the origin is None, we assume it
         # did not come from a browser and that it can be passed on.
-        if origin is not None and not self.check_origin(origin):
+
+#        if origin is not None and not self.check_origin(origin):
+        if origin is not None:      # Y.Kawada no check host=origin
             self.set_status(403)
             self.finish("Cross origin websockets not allowed")
             return
